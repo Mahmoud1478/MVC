@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/phpreact/public/static/css/main.8c8b27cf.chunk.css",
+    "main.js": "/phpreact/public/static/js/main.9ba6758b.chunk.js",
+    "main.js.map": "/phpreact/public/static/js/main.9ba6758b.chunk.js.map",
+    "runtime-main.js": "/phpreact/public/static/js/runtime-main.d05b2a00.js",
+    "runtime-main.js.map": "/phpreact/public/static/js/runtime-main.d05b2a00.js.map",
+    "static/js/2.04eaeaad.chunk.js": "/phpreact/public/static/js/2.04eaeaad.chunk.js",
+    "static/js/2.04eaeaad.chunk.js.map": "/phpreact/public/static/js/2.04eaeaad.chunk.js.map",
+    "static/js/3.002d992a.chunk.js": "/phpreact/public/static/js/3.002d992a.chunk.js",
+    "static/js/3.002d992a.chunk.js.map": "/phpreact/public/static/js/3.002d992a.chunk.js.map",
+    "index.html": "/phpreact/public/index.html",
+    "static/css/main.8c8b27cf.chunk.css.map": "/phpreact/public/static/css/main.8c8b27cf.chunk.css.map",
+    "static/js/2.04eaeaad.chunk.js.LICENSE.txt": "/phpreact/public/static/js/2.04eaeaad.chunk.js.LICENSE.txt",
+    "static/media/logo.6ce24c58.svg": "/phpreact/public/static/media/logo.6ce24c58.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.d05b2a00.js",
+    "static/js/2.04eaeaad.chunk.js",
+    "static/css/main.8c8b27cf.chunk.css",
+    "static/js/main.9ba6758b.chunk.js"
+  ]
+}

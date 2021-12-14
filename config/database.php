@@ -1,0 +1,9 @@
+<?php
+
+    /*
+     * databases configurations
+     */
+
+    return[
+
+    ];

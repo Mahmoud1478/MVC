@@ -1,0 +1,20 @@
+{
+    "name": "mahmoud/phpreact",
+    "type": "project",
+    "authors": [
+        {
+            "name": "mahmoud1478",
+            "email": "mah.mostafa18@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "filp/whoops": "^2.14"
+    },
+    "autoload": {
+        "psr-4": {
+            "Src\\":"src/" ,
+            "App\\":"app/"
+        }
+    }
+}
