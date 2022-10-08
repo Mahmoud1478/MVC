@@ -1,7 +1,7 @@
 <?php
 
 use App\Controllers\UserController;
-use Src\Router\Route;
+use Src\Routing\Route;
 
 Route::prefix('/admin',function (){
     Route::get('/users','UserController@index');

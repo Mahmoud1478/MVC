@@ -9,12 +9,16 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "filp/whoops": "^2.14"
+        "filp/whoops": "^2.14",
+      "ext-mysqli": "*"
     },
     "autoload": {
         "psr-4": {
             "Src\\":"src/" ,
             "App\\":"app/"
-        }
+        },
+        "files": [
+            "bootstrap/helpers.php"
+        ]
     }
 }

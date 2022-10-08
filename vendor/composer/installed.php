@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '5043b971cd5bf52ba469075463b5129d1cb3b09e',
+        'reference' => '9d8d11e5e948d80707f94cfa3c6cb341ec0e13a5',
         'name' => 'mahmoud/phpreact',
         'dev' => true,
     ),
@@ -25,7 +25,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '5043b971cd5bf52ba469075463b5129d1cb3b09e',
+            'reference' => '9d8d11e5e948d80707f94cfa3c6cb341ec0e13a5',
             'dev_requirement' => false,
         ),
         'psr/log' => array(

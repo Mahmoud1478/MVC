@@ -4,29 +4,21 @@ namespace Src\Session;
 
 class Session
 {
-    private function __construct(){}
 
-
-
-
-    public static function start()
+    public static function start(): void
     {
-        if (! session_id()){
-            ini_set('session.use_only_cookies',1);
+        if (!session_id()) {
+            ini_set('session.use_only_cookies', 1);
             session_start();
         }
     }
 
 
-
-
     public static function set(string $key, string $value): string
     {
-        $_SESSION[$key]= $value;
+        $_SESSION[$key] = $value;
         return $value;
     }
-
-
 
 
     public static function has(string $key): bool
@@ -35,51 +27,34 @@ class Session
     }
 
 
-
-
-    public static function get(string $key)
+    public static function get(string $key): mixed
     {
-        return static::has($key)?$_SESSION[$key]:null;
+        return static::has($key) ? $_SESSION[$key] : null;
     }
 
-
-
-
-    public static function remove(string $key)
+    public static function remove(string $key): void
     {
         unset($_SESSION[$key]);
     }
 
-
-
-
-    public static function all() : array
+    public static function all(): array
     {
         return $_SESSION;
     }
 
-
-
-
-    public static function destroy() :void
+    public static function destroy(): void
     {
-        foreach (static::all() as $key => $value){
+        foreach (static::all() as $key => $value) {
             static::remove($key);
         }
     }
 
-
-
-
-    public static function flash(string $key)
+    public function flash(string $key): mixed
     {
         $value = static::get($key);
         static::remove($key);
         return $value;
     }
-
-
-
 
 
 }

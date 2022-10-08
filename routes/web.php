@@ -1,32 +1,42 @@
 <?php
 
+/** @var Src\Routing\Router $router */
 
-use Src\Cookie\Cookie;
-use Src\Router\Route;
-use App\Controllers\UserController;
-use Src\Database\Connection;
+/*
+|--------------------------------------------------------------------------
+| Application Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register all  the routes for an application.
+| It is a breeze. Simply tell Framework the URIs it should respond to
+| and give it the Closure to call when that URI is requested.
+|
+*/
 
-Route::get('/',function (){
-   $connection = new Connection();
-   echo '<pre>';
-   print_r($connection->all());
-   echo '</pre>';
+use Src\Routing\Router;
 
 
-});
-
-Route::prefix('/admin',function (){
-    Route::get('/users','UserController@index');
-    Route::prefix('user',function (){
-        Route::get('/create',[UserController::class,"create"]);
-        Route::get('/{id}/show','UserController@show');
-        Route::post('/store','UserController@store');
-        Route::get('/{id}/edit','UserController@edit');
-        Route::delete('/delete/{id}','UserController@delete');
-        Route::put('/{id}/update','UserController@update');
+Router::group(['middleware' => 'auth:admin|role:owner'], function () {
+    Router::get('/', function () { return 'get' ;})->name('index');
+    Router::post('/', function () {
+        return [
+            'url' => Router::getByNameWithBinding('index'),
+            'test' => true,
+        ];
     });
-
-
 });
+
+
+
+//$router->get('/testing/{id}/{name}/{role}/{permissions}',function () use ($router){
+//    dd($router->list()['GET'][0]);
+//   dd($router->getByName('testing',[
+//       'id' => '5',
+//       'name'=> 'mahmoud',
+//       'role' => 'admin',
+//       'permissions' => 'create_admin'
+//   ]));
+//    dd($router->namedRoute);
+//})->name('testing');
 
 

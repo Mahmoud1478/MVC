@@ -21,7 +21,7 @@ class UserController
     public function store(Request $request){
         echo 'store function with request: ' ;
         echo '<pre>';
-        print_r($request::values());
+        print_r($request::all());
         echo '</pre>';
 
     }

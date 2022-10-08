@@ -1,42 +1,54 @@
 <?php
 
 namespace Src\Bootstrap;
-use Exception;
+
 use Src\Cookie\Cookie;
-use Src\Exceptions\Whoops ;
+use Src\Exceptions\Whoops;
 use Src\Http\Request;
 use Src\Http\Server;
-use Src\Router\Route;
+use Src\Routing\Router;
 use Src\Session\Session;
 
 class App
 {
-    private function __construct() {}
 
+    private static  AppContainer $container;
+    public Router $router;
 
-    public static function run(){
-        /* register whoops*/
+    public function __construct(AppContainer $container)
+    {
+        static::$container = $container;
+        $this->boot();
+    }
+
+    public function boot(): void
+    {
         Whoops::handle();
-
-        /* start session */
-        Session::start();
-
-        /* start cokes */
-
-        /* request handle */
-        Request::handle();
-
-        require_once '../routes/web.php';
-        Route::prefix('api',function (){
-            require_once '../routes/api.php';
-        });
-        /* handle route */
-
-        /* handle response*/
-        Route::resolve();
+        $this->bootstrapRouter();
+    }
 
 
 
+    public static function get(string $footprint)
+    {
+        return static::$container->get($footprint);
+    }
+
+    private function bootstrapRouter(): void
+    {
+        Router::init();
+    }
+
+    public function run(): void
+    {
+        $value = Router::resolve();
+        if ($value){
+            if (gettype($value) == 'string' ){
+                echo  $value;
+            }else{
+                print_r(json_encode($value,MYSQLI_TYPE_JSON) );
+            }
+        }
     }
 
 }
