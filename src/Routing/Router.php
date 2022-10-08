@@ -8,7 +8,10 @@ use Src\Http\Server;
 
 class Router
 {
+
     private static  RoutingProcessor $processor ;
+
+    private function __construct(){}
 
     static function init(): void
     {
@@ -42,6 +45,22 @@ class Router
     public static function post(string $uri, callable|string|array $callback): RoutingProcessor
     {
         return static::addRoute($uri,$callback,'POST');
+    }
+    public static function head(string $uri, callable|string|array $callback): RoutingProcessor
+    {
+        return static::addRoute($uri,$callback,'HEAD');
+    }
+    public static function put(string $uri, callable|string|array $callback): RoutingProcessor
+    {
+        return static::addRoute($uri,$callback,'PUT');
+    }
+    public static function patch(string $uri, callable|string|array $callback): RoutingProcessor
+    {
+        return static::addRoute($uri,$callback,'PATCH');
+    }
+    public static function delete(string $uri, callable|string|array $callback): RoutingProcessor
+    {
+        return static::addRoute($uri,$callback,'DELETE');
     }
 
     public static function namedRoutes(): array
@@ -126,5 +145,9 @@ class Router
         ],$attr));
     }
 
+    public static function getNamedRoutes(): array
+    {
+        return self::$processor->getNamedRoutes();
+    }
 
 }

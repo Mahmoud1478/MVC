@@ -8,3 +8,4 @@ $app->run();
 
 
 
+dd(\Src\Routing\Router::getNamedRoutes());

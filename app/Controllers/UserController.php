@@ -18,24 +18,18 @@ class UserController
     public function edit($id){
         echo 'edit function with pram: '.$id ;
     }
-    public function store(Request $request){
+    public function store(){
         echo 'store function with request: ' ;
-        echo '<pre>';
-        print_r($request::all());
-        echo '</pre>';
-
     }
     public function show($id){
         echo 'show function with pram: '.$id ;
     }
-    public function delete($id){
+    public function destroy($id)
+    {
         echo 'delete function with pram: '.$id ;
     }
-    public function update(int $id,array $request){
+    public function update(int $id){
         echo 'update function with pram: '.$id ;
-        echo '<pre>';
-        print_r($request);
-        echo '</pre>';
     }
 
 

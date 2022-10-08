@@ -164,7 +164,7 @@ class RoutingProcessor
     {
         $route = & $this->routes[$this->currentMethod][count($this->routes[$this->currentMethod])-1];
         $route['named'] = true;
-        $this->namedRoutes[$name] =[
+        $this->namedRoutes[$this->createNameForRoute($name)] =[
             'uri' => $route['uri'],
             'pattern' => $route['pattern'],
             'binding' => $route['binding'],
@@ -172,6 +172,14 @@ class RoutingProcessor
         ];
 
         return $this;
+    }
+
+    private function createNameForRoute(string $name): string
+    {
+        if (isset(end($this->groupStack)['as'])){
+            return end($this->groupStack)['as'].'.'.$name;
+        }
+        return $name ;
     }
 
     public function prefix(string $prefix): static

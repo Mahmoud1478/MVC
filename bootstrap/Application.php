@@ -28,10 +28,9 @@ foreach ($classes as $footprint => $class) {
     $container->set($footprint, $class);
 }
 
-//$router = new Route();
-//        require_once '../routes/web.php' ;
+
 $app = new App($container);
-//$container::setInstance('router', $app->router);
+
 Router::group([],function (){
     require __DIR__.'/../routes/web.php';
 });

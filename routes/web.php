@@ -13,17 +13,26 @@
 |
 */
 
+use App\Controllers\UserController;
 use Src\Routing\Router;
 
 
 Router::group(['middleware' => 'auth:admin|role:owner'], function () {
     Router::get('/', function () { return 'get' ;})->name('index');
     Router::post('/', function () {
-        return [
-            'url' => Router::getByNameWithBinding('index'),
-            'test' => true,
-        ];
+        return  Router::getByNameWithBinding('index');
     });
+});
+
+Router::group(['prefix'=> 'users' ,'as'=> 'users'],function (){
+    Router::get('/',[UserController::class,'index'])->name('index');
+    Router::post('/',[UserController::class,'store'])->name('store');
+    Router::get('/{id}',[UserController::class,'show'])->name('show');
+    Router::put('/{id}',[UserController::class,'update'])->name('update');
+    Router::delete('/{id}',[UserController::class,'destroy'])->name('destroy');
+    Router::get('/{id}/edit',[UserController::class,'edit'])->name('edit');
+    Router::get('/create',[UserController::class,'create'])->name('create');
+
 });
 
 
@@ -38,5 +47,150 @@ Router::group(['middleware' => 'auth:admin|role:owner'], function () {
 //   ]));
 //    dd($router->namedRoute);
 //})->name('testing');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
