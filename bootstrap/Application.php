@@ -17,19 +17,7 @@ use Src\Http\Server;
 use Src\Routing\Router;
 use Src\Session\Session;
 
-$container = new AppContainer();
-$classes = [
-    'session' => Session::class,
-    'cookie' => Cookie::class,
-    'server' => Server::class,
-    'request' => Request::class,
-];
-foreach ($classes as $footprint => $class) {
-    $container->set($footprint, $class);
-}
-
-
-$app = new App($container);
+$app = new App();
 
 Router::group([],function (){
     require __DIR__.'/../routes/web.php';

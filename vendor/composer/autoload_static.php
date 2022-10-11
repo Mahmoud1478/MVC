@@ -22,6 +22,7 @@ class ComposerStaticInitb0a8a40f89a166f684a65a64876ffde2
         'P' => 
         array (
             'Psr\\Log\\' => 8,
+            'Psr\\Container\\' => 14,
         ),
         'A' => 
         array (
@@ -41,6 +42,10 @@ class ComposerStaticInitb0a8a40f89a166f684a65a64876ffde2
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/src',
+        ),
+        'Psr\\Container\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/container/src',
         ),
         'App\\' => 
         array (

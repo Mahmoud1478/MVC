@@ -4,17 +4,21 @@ namespace Src\Routing;
 
 
 use Closure;
+use Src\Bootstrap\App;
+use Src\Http\Request;
 use Src\Http\Server;
 
 class Router
 {
 
     private static  RoutingProcessor $processor ;
+    private static App $app;
 
     private function __construct(){}
 
-    static function init(): void
+    static function init(App $app): void
     {
+        self::$app = $app;
         self::$processor = new RoutingProcessor();
     }
 
@@ -70,7 +74,7 @@ class Router
 
     public static function resolve()
     {
-        $request = request();
+        $request = self::$app->get(Request::class);
         $route = self::$processor->match(trim($request->uri(),'/')??'/', $request->method());
         if ($route) {
             return static::call($route['callback'], $route['prams']);
@@ -103,7 +107,7 @@ class Router
     private static function callbackFunction($controller, $method, $args)
     {
         if (class_exists($controller)) {
-            $obj = new $controller;
+            $obj = static::$app->get($controller);
             if (method_exists($obj, $method)) {
                 return call_user_func_array([$obj, $method], $args);
             } else {
@@ -131,18 +135,18 @@ class Router
         $group =self::getGroupStack();
         $attr =end($group);
         $uri =  ($attr['prefix'] ?? '').'/' . trim($uri, '/');
-        static::$processor->setCurrentMethod($method);
         preg_match_all('/{(.*?)}/',$uri , $prams);
         $pramsName = array_pop($prams);
-        return self::$processor->add('web',$method,array_merge([
-            'uri' => $uri,
-            'pattern' => '#^' . (trim(preg_replace('/{(.*?)}/', '(.*?)', $uri ),'/')?? '/') . '$#',
-            'callback' => $callback,
-            'binding' => preg_replace('/{(.*?)}/', '%s', $uri),
-            'pramsName' =>array_combine($pramsName,array_fill(0,count($pramsName),'/^.*$/')),
-            'named' => false,
-
-        ],$attr));
+        return static::$processor->setCurrentMethod($method)
+            ->add('web',$method,array_merge([
+                'uri' => $uri,
+                'pattern' => '#^' . (trim(preg_replace('/{(.*?)}/', '(.*?)', $uri ),'/')?? '/') . '$#',
+                'callback' => $callback,
+                'binding' => preg_replace('/{(.*?)}/', '%s', $uri),
+                'pramsName' =>array_combine($pramsName,array_fill(0,count($pramsName),'/^.*$/')),
+                'named' => false,
+        ],$attr))
+            ->refreshIndex();
     }
 
     public static function getNamedRoutes(): array

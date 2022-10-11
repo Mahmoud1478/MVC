@@ -10,7 +10,8 @@
     "minimum-stability": "stable",
     "require": {
         "filp/whoops": "^2.14",
-      "ext-mysqli": "*"
+      "ext-mysqli": "*",
+        "psr/container": "^2.0"
     },
     "autoload": {
         "psr-4": {

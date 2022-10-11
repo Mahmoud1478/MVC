@@ -6,12 +6,14 @@ use ArrayAccess;
 
 class RoutingProcessor
 {
-    private  array $routes;
-    private  string $currentMethod = 'GET';
-    private array $groupStack =  [] ;
+    private array $routes;
+    private string $currentMethod = 'GET';
+    private array $groupStack = [];
     private array $namedRoutes = [];
+    private int $index = 0;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->routes = [];
     }
 
@@ -22,6 +24,7 @@ class RoutingProcessor
     {
         return $this->groupStack;
     }
+
     /**
      * @return string
      */
@@ -45,37 +48,43 @@ class RoutingProcessor
     {
         return $this->namedRoutes;
     }
+
     /**
      * @param string $currentMethod
      */
     public function setCurrentMethod(string $currentMethod): static
     {
         $this->currentMethod = $currentMethod;
+//        $this->index = count($this->routes[$currentMethod]??[]) 1;
         return $this;
     }
 
     public function updateGroupStack(array $attributes): static
     {
-        if (! empty($this->groupStack)) {
+        if (!empty($this->groupStack)) {
             $attributes = $this->mergeWithLastGroup($attributes);
         }
         $this->groupStack[] = $attributes;
         return $this;
     }
-    public function then (callable $callback): static
+
+    public function then(callable $callback): static
     {
         $callback($this);
         return $this;
     }
+
     public function popGroupStack(): static
     {
         array_pop($this->groupStack);
         return $this;
     }
+
     protected function mergeWithLastGroup($new): array
     {
         return $this->mergeGroup($new, end($this->groupStack));
     }
+
     public function mergeGroup($new, $old): array
     {
 
@@ -86,14 +95,14 @@ class RoutingProcessor
         }
 
         if (isset($old['as'])) {
-            $new['as'] = $old['as'].(isset($new['as']) ? '.'.$new['as'] : '');
+            $new['as'] = $old['as'] . (isset($new['as']) ? '.' . $new['as'] : '');
         }
 
-        if (isset($old['suffix']) && ! isset($new['suffix'])) {
+        if (isset($old['suffix']) && !isset($new['suffix'])) {
             $new['suffix'] = $old['suffix'];
         }
-        if (isset($new['namespace'])){
-            $new['namespace'] = ($old['namespace'] ??'') . $new['namespace'];
+        if (isset($new['namespace'])) {
+            $new['namespace'] = ($old['namespace'] ?? '') . $new['namespace'];
         }
         return array_merge_recursive(static::except($old, ['namespace', 'prefix', 'as', 'suffix']), $new);
     }
@@ -103,11 +112,12 @@ class RoutingProcessor
         $oldPrefix = $old['prefix'] ?? null;
 
         if (isset($new['prefix'])) {
-            return trim($oldPrefix ?? '', '/').'/'.trim($new['prefix'], '/');
+            return trim($oldPrefix ?? '', '/') . '/' . trim($new['prefix'], '/');
         }
 
         return $oldPrefix;
     }
+
     public static function except($array, $keys)
     {
         static::forget($array, $keys);
@@ -119,7 +129,7 @@ class RoutingProcessor
     {
         $original = &$array;
 
-        $keys = (array) $keys;
+        $keys = (array)$keys;
 
         if (count($keys) === 0) {
             return;
@@ -151,6 +161,7 @@ class RoutingProcessor
             unset($array[array_shift($parts)]);
         }
     }
+
     public static function exists($array, $key): bool
     {
         if ($array instanceof ArrayAccess) {
@@ -162,13 +173,13 @@ class RoutingProcessor
 
     public function name(string $name): static
     {
-        $route = & $this->routes[$this->currentMethod][count($this->routes[$this->currentMethod])-1];
+        $route = &$this->routes[$this->currentMethod][$this->index];
         $route['named'] = true;
-        $this->namedRoutes[$this->createNameForRoute($name)] =[
+        $this->namedRoutes[$this->createNameForRoute($name)] = [
             'uri' => $route['uri'],
             'pattern' => $route['pattern'],
             'binding' => $route['binding'],
-            'pramsName'=> $route['pramsName']
+            'pramsName' => $route['pramsName']
         ];
 
         return $this;
@@ -176,10 +187,10 @@ class RoutingProcessor
 
     private function createNameForRoute(string $name): string
     {
-        if (isset(end($this->groupStack)['as'])){
-            return end($this->groupStack)['as'].'.'.$name;
+        if (isset(end($this->groupStack)['as'])) {
+            return end($this->groupStack)['as'] . '.' . $name;
         }
-        return $name ;
+        return $name;
     }
 
     public function prefix(string $prefix): static
@@ -187,37 +198,48 @@ class RoutingProcessor
         return $this;
     }
 
-    public function middleware (array|string $middlewares): static
+    public function middleware(array|string $middlewares): static
     {
+        $this->routes[$this->currentMethod][$this->index]['middleware'] = array_merge(
+            $this->routes[$this->currentMethod][$this->index]['middleware']??[],
+                is_string($middlewares) ? explode('|', $middlewares) : $middlewares
+        );
         return $this;
     }
+
     public function whereDigit(string|array $pram): static
     {
         return $this;
     }
+
     public function whereSting(string|array $pram): static
     {
         return $this;
     }
-    public function whereDigitExcept(string|array $pram , ?array $except = null): static
+
+    public function whereDigitExcept(string|array $pram, ?array $except = null): static
     {
         return $this;
     }
-    public function whereStingExcept(string|array $pram , ?array $except = null): static
+
+    public function whereStingExcept(string|array $pram, ?array $except = null): static
     {
         return $this;
     }
-    public function whereDigitAnd(string|array $pram , ?array $and = null): static
+
+    public function whereDigitAnd(string|array $pram, ?array $and = null): static
     {
         return $this;
     }
-    public function whereStingAnd(string|array $pram , ?array $and = null): static
+
+    public function whereStingAnd(string|array $pram, ?array $and = null): static
     {
         return $this;
     }
+
     public function match(string $uri, string $method): bool|array
     {
-        foreach ($this->routes[$method] as  $value) {
+        foreach ($this->routes[$method] as $value) {
             if (preg_match($value['pattern'], $uri, $matches)) {
                 array_shift($matches);
                 return array_merge($value, ['prams' => array_values($matches)]);
@@ -225,13 +247,21 @@ class RoutingProcessor
         }
         return false;
     }
+
     public function routeExists(string $uri, string $method): bool
     {
         return false;
     }
+
     public function add(string $type, string $method, array $value): static
     {
-        $this->routes[$method][]= $value;
+        $this->routes[$method][] = $value;
+        return $this;
+    }
+
+    public function refreshIndex(): static
+    {
+        $this->index = count($this->routes[$this->currentMethod]) - 1;
         return $this;
     }
 }

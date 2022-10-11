@@ -2,6 +2,7 @@
 
 namespace Src\Bootstrap;
 
+use Src\Container\ServiceContainer;
 use Src\Cookie\Cookie;
 use Src\Exceptions\Whoops;
 use Src\Http\Request;
@@ -9,15 +10,12 @@ use Src\Http\Server;
 use Src\Routing\Router;
 use Src\Session\Session;
 
-class App
+class App extends ServiceContainer
 {
-
-    private static  AppContainer $container;
     public Router $router;
 
-    public function __construct(AppContainer $container)
+    public function __construct()
     {
-        static::$container = $container;
         $this->boot();
     }
 
@@ -29,14 +27,9 @@ class App
 
 
 
-    public static function get(string $footprint)
-    {
-        return static::$container->get($footprint);
-    }
-
     private function bootstrapRouter(): void
     {
-        Router::init();
+        Router::init($this);
     }
 
     public function run(): void

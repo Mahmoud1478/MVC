@@ -2,34 +2,39 @@
 
 namespace App\Controllers;
 
+use App\Services\UserService;
 use Src\Cookie\Cookie;
 use Src\Http\Request;
+use Src\Routing\Router;
 
 class UserController
 {
+    public function __construct(private readonly UserService $service)
+    {
+    }
 
-    public function index(){
-
-        echo 'index function';
+    public function index()
+    {
+        return  $this->service->index();
     }
     public function create(){
-        echo 'create function';
+        return 'create function';
     }
     public function edit($id){
-        echo 'edit function with pram: '.$id ;
+        return 'edit function with pram: '.$id ;
     }
     public function store(){
-        echo 'store function with request: ' ;
+        return 'store function with request: ' ;
     }
     public function show($id){
-        echo 'show function with pram: '.$id ;
+        return 'show function with pram: '.$id ;
     }
     public function destroy($id)
     {
-        echo 'delete function with pram: '.$id ;
+        return 'delete function with pram: '.$id ;
     }
     public function update(int $id){
-        echo 'update function with pram: '.$id ;
+        return 'update function with pram: '.$id ;
     }
 
 
