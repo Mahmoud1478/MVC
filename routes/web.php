@@ -17,12 +17,12 @@ use App\Controllers\UserController;
 use Src\Routing\Router;
 
 
-Router::group(['middleware' => 'auth:admin|role:owner'], function () {
-    Router::get('/', function () { return 'get' ;})->name('index');
-    Router::post('/', function () {
-        return  Router::getByNameWithBinding('index');
-    });
-});
+//Router::group(['middleware' => 'auth:admin|role:owner'], function () {
+//    Router::get('/', function () { return 'get' ;})->name('index');
+//    Router::post('/', function () {
+//        return  Router::getByNameWithBinding('index');
+//    });
+//});
 
 Router::group(['prefix'=> 'users' ,'as'=> 'users' ],function (){
     Router::get('/',[UserController::class,'index'])->name('index');

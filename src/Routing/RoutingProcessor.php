@@ -174,7 +174,6 @@ class RoutingProcessor
     public function name(string $name): static
     {
         $route = &$this->routes[$this->currentMethod][$this->index];
-        $route['named'] = true;
         $this->namedRoutes[$this->createNameForRoute($name)] = [
             'uri' => $route['uri'],
             'pattern' => $route['pattern'],
@@ -240,9 +239,21 @@ class RoutingProcessor
     public function match(string $uri, string $method): bool|array
     {
         foreach ($this->routes[$method] as $value) {
+            $fullyMatched = true;
             if (preg_match($value['pattern'], $uri, $matches)) {
                 array_shift($matches);
-                return array_merge($value, ['prams' => array_values($matches)]);
+                foreach ($matches as $pram){
+                    if (strpos($pram,'/')){
+                        $fullyMatched = false;
+                        break;
+                    }
+                }
+                if ($fullyMatched){
+                    return array_merge($value, [
+                        'prams' => array_combine(array_keys($value['pramsName']),$matches),
+                    ]);
+                }
+
             }
         }
         return false;
