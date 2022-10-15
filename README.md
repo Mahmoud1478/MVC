@@ -29,6 +29,17 @@ class UserController
     }
 }
 ```
+### get route by name with prams
+```php
+class UserController
+{
+    public function create()
+    {
+        return Router::getByNameWithBinding('users.show',['id'=>1]);
+    }
+}
+
+```
 ## Di
 ### 1- Constructor Di
 #### UserController
