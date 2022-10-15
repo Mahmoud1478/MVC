@@ -27,13 +27,11 @@ use Src\Routing\Router;
 Router::group(['prefix'=> 'users' ,'as'=> 'users' ],function (){
     Router::get('/',[UserController::class,'index'])->name('index');
     Router::post('/',[UserController::class,'store'])->name('store');
+    Router::get('/create',[UserController::class,'create'])->name('create')->middleware('working');
     Router::get('/{id}',[UserController::class,'show'])->name('show');
     Router::put('/{id}',[UserController::class,'update'])->name('update');
     Router::delete('/{id}',[UserController::class,'destroy'])->name('destroy');
     Router::get('/{id}/edit',[UserController::class,'edit'])->name('edit');
-    Router::get('/create',[UserController::class,'create'])->name('create')
-        ->middleware('working');
-
 });
 
 

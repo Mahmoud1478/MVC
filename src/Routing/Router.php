@@ -140,12 +140,15 @@ class Router
         return static::$app->methodResolve($controller , $method, $args);
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getByNameWithBinding(string $name , ?array $prams=[]): string
     {
         $route = self::$processor->getNamedRoutes()[$name];
         foreach ($route['pramsName'] as $key => $value){
             if (!preg_match($value,$prams[$key])){
-                throw new BadConversionException("$prams[$key] must match $value");
+                throw new \Exception("$prams[$key] must match $value");
             }
         }
         return Server::url(vsprintf($route['binding'],array_values($prams)));

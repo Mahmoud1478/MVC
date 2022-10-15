@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Services\UserService;
 use Src\Http\Request;
 use Src\Http\Server;
+use Src\Routing\Router;
 
 class UserController
 {
@@ -17,7 +18,7 @@ class UserController
 
     public function create()
     {
-        return 'create function';
+        return Router::getByNameWithBinding('users.index');
     }
 
     public function edit($id)

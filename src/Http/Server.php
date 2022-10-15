@@ -35,7 +35,7 @@ class Server
 
     public static function url(?string $path = null) :string
     {
-        return static::baseUrl() . $path;
+        return static::baseUrl() .'/'. $path;
     }
 
     public static function scriptDir(): string
