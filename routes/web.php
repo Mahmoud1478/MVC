@@ -16,36 +16,21 @@
 use App\Controllers\UserController;
 use Src\Routing\Router;
 
-
-//Router::group(['middleware' => 'auth:admin|role:owner'], function () {
-//    Router::get('/', function () { return 'get' ;})->name('index');
-//    Router::post('/', function () {
-//        return  Router::getByNameWithBinding('index');
-//    });
-//});
-
-Router::group(['prefix'=> 'users' ,'as'=> 'users' ],function (){
-    Router::get('/',[UserController::class,'index'])->name('index');
-    Router::post('/',[UserController::class,'store'])->name('store');
-    Router::get('/create',[UserController::class,'create'])->name('create')->middleware('working');
-    Router::get('/{id}',[UserController::class,'show'])->name('show');
-    Router::put('/{id}',[UserController::class,'update'])->name('update');
-    Router::delete('/{id}',[UserController::class,'destroy'])->name('destroy');
-    Router::get('/{id}/edit',[UserController::class,'edit'])->name('edit');
+$router->get('/' ,function (\Src\Http\Request $request){
+    return $request->uri() .  '====> home page';
 });
 
+$router->group(['prefix'=> 'users' ,'as'=> 'users' ,'namespace'=> 'App\Controllers'],function (Router $router){
+    $router->get('/',[UserController::class,'index'])->name('index');
+    $router->post('/',[UserController::class,'store'])->name('store');
+    $router->get('/create',[UserController::class,'create'])->name('create')
+        ->middleware('working');
+    $router->get('/{name:[A-Za-z_-]}','UserController@show')->name('show');
+    $router->put('/{id}',[UserController::class,'update'])->name('update');
+    $router->delete('/{id}',[UserController::class,'destroy'])->name('destroy');
+    $router->get('/{id}/edit',[UserController::class,'edit'])->name('edit');
+});
 
-
-//$router->get('/testing/{id}/{name}/{role}/{permissions}',function () use ($router){
-//    dd($router->list()['GET'][0]);
-//   dd($router->getByName('testing',[
-//       'id' => '5',
-//       'name'=> 'mahmoud',
-//       'role' => 'admin',
-//       'permissions' => 'create_admin'
-//   ]));
-//    dd($router->namedRoute);
-//})->name('testing');
 
 
 

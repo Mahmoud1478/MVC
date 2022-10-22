@@ -4,6 +4,7 @@ namespace Src\Routing;
 
 
 use Closure;
+use Exception;
 use ReflectionException;
 use Src\Bootstrap\App;
 use Src\Container\Exceptions\ContainerException;
@@ -13,24 +14,23 @@ use Src\Http\Server;
 class Router
 {
 
-    private static  RoutingProcessor $processor ;
-    private static App $app;
+    private static RoutingProcessor $processor;
 
-    private function __construct(){}
-
-    static function init(App $app): void
+    function __construct(
+        public readonly App $app,
+    )
     {
-        self::$app = $app;
         self::$processor = new RoutingProcessor();
     }
 
-    public static function  group(array $attributes, Closure $callback): void
+    public function group(array $attributes, Closure $callback): void
     {
-        if (isset($attributes['middleware']) && is_string($attributes['middleware']))
-        {
+        if (isset($attributes['middleware']) && is_string($attributes['middleware'])) {
             $attributes['middleware'] = explode('|', $attributes['middleware']);
         }
-        self::$processor->updateGroupStack($attributes)->then($callback)->popGroupStack();
+        self::$processor->updateGroupStack($attributes);
+        $callback($this);
+        static::$processor->popGroupStack();
     }
 
 
@@ -44,29 +44,34 @@ class Router
         return (!strpos($uri, 'api')) ? 'web' : 'api';
     }
 
-    public static function get(string $uri, callable|string|array $callback): RoutingProcessor
+    public function get(string $uri, callable|string|array $callback): RoutingProcessor
     {
-        return static::addRoute($uri,$callback,'GET');
+        return static::addRoute($uri, $callback, 'GET');
     }
-    public static function post(string $uri, callable|string|array $callback): RoutingProcessor
+
+    public function post(string $uri, callable|string|array $callback): RoutingProcessor
     {
-        return static::addRoute($uri,$callback,'POST');
+        return static::addRoute($uri, $callback, 'POST');
     }
-    public static function head(string $uri, callable|string|array $callback): RoutingProcessor
+
+    public function head(string $uri, callable|string|array $callback): RoutingProcessor
     {
-        return static::addRoute($uri,$callback,'HEAD');
+        return static::addRoute($uri, $callback, 'HEAD');
     }
-    public static function put(string $uri, callable|string|array $callback): RoutingProcessor
+
+    public function put(string $uri, callable|string|array $callback): RoutingProcessor
     {
-        return static::addRoute($uri,$callback,'PUT');
+        return static::addRoute($uri, $callback, 'PUT');
     }
-    public static function patch(string $uri, callable|string|array $callback): RoutingProcessor
+
+    public function patch(string $uri, callable|string|array $callback): RoutingProcessor
     {
-        return static::addRoute($uri,$callback,'PATCH');
+        return static::addRoute($uri, $callback, 'PATCH');
     }
-    public static function delete(string $uri, callable|string|array $callback): RoutingProcessor
+
+    public function delete(string $uri, callable|string|array $callback): RoutingProcessor
     {
-        return static::addRoute($uri,$callback,'DELETE');
+        return static::addRoute($uri, $callback, 'DELETE');
     }
 
     public static function namedRoutes(): array
@@ -78,21 +83,20 @@ class Router
      * @return mixed|null
      * @throws ReflectionException
      * @throws ContainerException
+     * @throws Exception
      */
-    public static function resolve(): mixed
+    public function resolve(): mixed
     {
-        $request = self::$app->get(Request::class);
-//        dd(trim($request->uri(),'/'));
-        $route = self::$processor->match(trim($request->uri(),'/')??'/', $request->method());
-        if (! $route) {
-            echo '<h1 style="display: block;width: 100% ;text-align: center;font-weight: bold; text-transform:uppercase;padding: 100px 0px">404 not found</h1>';
-            return 1;
+        $request = $this->app->get(Request::class);
+        $route = self::$processor->match(rtrim($request->uri(), '/') ?? '/', $request->method());
+        if ($route) {
+            return $this->call($route);
         }
-        return static::call($route);
+        throw new Exception('Route " '.$request->uri().' " Not Fount');
     }
 
 
-    public static function list(): array
+    public function list(): array
     {
         return self::$processor->getRoutes();
     }
@@ -100,26 +104,22 @@ class Router
     /**
      * @throws ReflectionException
      * @throws ContainerException
+     * @throws Exception
      */
-    private static function call(array $route)
+    private function call(Route $route)
     {
-        $callback = $route['callback'];
-        if (is_array($route['callback'])){
-            [$class, $method] = $callback;
-            return self::callbackFunction($class, $method, $route['prams']);
+        $callback = $route->getCallback();
+        if (is_callable($callback)){
+            return $this->app->methodResolve(null,$callback, $route->getParametersValues());
         }
-
-//        if (is_callable($callback)) {
-//            return call_user_func_array($callback, $args);
-//        } elseif (is_string($callback)) {
-//            list($callback, $method) = explode('@', $callback);
-//            $controller = 'App\Controllers\\' . $callback;
-//            return self::callbackFunction($controller, $method, array_merge($args));
-//
-//        } elseif (is_array($callback)) {
-//            list($callback, $method) = $callback;
-//            return self::callbackFunction($callback, $method, array_merge($args));
-//        }
+        if (is_array($callback)) {
+            [$controller, $method] = $callback;
+        }
+        else{
+            [$controller, $method] = explode('@',$callback);
+            $controller = $route->getNamespace().$controller ;
+        }
+        return $this->callFromClass($controller,$method,$route->getParametersValues());
 
     }
 
@@ -130,50 +130,45 @@ class Router
      * @return mixed|void
      * @throws ReflectionException
      * @throws ContainerException
+     * @throws Exception
      */
-    private static function callbackFunction($controller, $method, $args)
+    private function callFromClass($controller, $method, $args)
     {
-        if (!class_exists($controller)){echo 'controller dose not exist ';}
-        $controller = static::$app->get($controller);
-        if (!method_exists($controller, $method)){echo 'method dose not exist ';}
-        static::$app->methodResolve($controller , $method, $args);
-        return static::$app->methodResolve($controller , $method, $args);
+        if (!class_exists($controller)) {
+            throw new Exception('Class "'.$controller.'" dose not exist ');
+        }
+        $controller = $this->app->get($controller);
+        if (!method_exists($controller, $method)) {
+            throw new Exception('method "'.$method.'" dose not exist ');
+        }
+        return $this->app->methodResolve($controller, $method, $args);
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public static function getByNameWithBinding(string $name , ?array $prams=[]): string
+    public static function getByNameWithBinding(string $name, ?array $prams = []): string
     {
-        $route = self::$processor->getNamedRoutes()[$name];
-        foreach ($route['pramsName'] as $key => $value){
-            if (!preg_match($value,$prams[$key])){
-                throw new \Exception("$prams[$key] must match $value");
-            }
-        }
-        return Server::url(vsprintf($route['binding'],array_values($prams)));
+        $index = self::$processor->getNamedRoutes()[$name];
+        $route = self::$processor->routes($index['method'],$index['index']);
+        return Server::url($route->bindParameters($prams));
     }
 
-    private static function addRoute(string $uri,callable|string|array $callback , string $method): RoutingProcessor
+    private static function addRoute(string $uri, callable|string|array $callback, string $method): RoutingProcessor
     {
-        $group =self::getGroupStack();
-        $attr =end($group);
-        $uri =  trim(($attr['prefix'] ?? '').'/' . trim($uri, '/'),'/');
-        preg_match_all('/{(.*)}/',$uri , $prams);
-        $pramsName = array_pop($prams);
-        return static::$processor->setCurrentMethod($method)
-            ->add('web',$method,array_merge([
-                'uri' => $uri,
-                'pattern' => '#^' . preg_replace('#{(.*?)}#', '(.*?)', $uri ).'$#',
-                'callback' => $callback,
-                'binding' => preg_replace('/{(.*)}/', '%s', $uri),
-                'pramsName' =>array_combine($pramsName,array_fill(0,count($pramsName),'/.*/')),
-                'named' => false,
-        ],$attr))
-            ->refreshIndex();
+        $group = self::getGroupStack();
+        $attr = end($group);
+        $uri = rtrim(($attr['prefix'] ?? '') . '/' . trim($uri, '/'), '/');
+        $route = (new Route(array_merge([
+            'uri' => $uri,
+            'callback' => $callback,
+            'placeholder' => preg_replace('#{(.*?)}#', '%s', $uri),
+        ], $attr)))->generateParametersPattern()->generatePattern();
+
+        return static::$processor->setCurrentMethod($method)->add('web', $method, $route)->increaseIndex();
     }
 
-    public static function getNamedRoutes(): array
+    public  function getNamedRoutes(): array
     {
         return self::$processor->getNamedRoutes();
     }

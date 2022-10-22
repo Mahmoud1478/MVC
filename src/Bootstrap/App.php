@@ -2,6 +2,8 @@
 
 namespace Src\Bootstrap;
 
+use ReflectionException;
+use Src\Container\Exceptions\ContainerException;
 use Src\Container\ServiceContainer;
 use Src\Cookie\Cookie;
 use Src\Exceptions\Whoops;
@@ -29,12 +31,16 @@ class App extends ServiceContainer
 
     private function bootstrapRouter(): void
     {
-        Router::init($this);
+        $this->router = new Router($this);
     }
 
+    /**
+     * @throws ReflectionException
+     * @throws ContainerException
+     */
     public function run(): void
     {
-        $value = Router::resolve();
+        $value = $this->router->resolve();
         if ($value){
             if (gettype($value) == 'string' ){
                 echo  $value;

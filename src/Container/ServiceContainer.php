@@ -2,9 +2,11 @@
 
 namespace Src\Container;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
@@ -85,9 +87,14 @@ abstract class ServiceContainer implements ContainerInterface
     /**
      * @throws ReflectionException|ContainerException
      */
-    public function methodResolve($object, string $methodName, array $args)
+    public function methodResolve($object, string|Closure $methodName, array $args)
     {
-        $reflection = new ReflectionMethod($object::class, $methodName);
+        if (is_null($object)){
+            $reflection = new ReflectionFunction($methodName);
+
+        }else {
+            $reflection = new ReflectionMethod($object::class, $methodName);
+        }
         $prams = $reflection->getParameters();
         if (!$prams) {
             $reflection->invoke($object);
@@ -105,7 +112,10 @@ abstract class ServiceContainer implements ContainerInterface
             }
             $finalArgs[$name] = $value;
         }
-        return $reflection->invokeArgs($object, $finalArgs);
+        if ($object){
+            return $reflection->invokeArgs($object, array_values($finalArgs));
+        }
+        return $reflection->invokeArgs(array_values($finalArgs));
     }
 
 }

@@ -6,6 +6,9 @@ use ArrayAccess;
 
 class RoutingProcessor
 {
+    /**
+     * @var array<Route> $routes
+     */
     private array $routes;
     private string $currentMethod = 'GET';
     private array $groupStack = [];
@@ -173,14 +176,17 @@ class RoutingProcessor
 
     public function name(string $name): static
     {
-        $route = &$this->routes[$this->currentMethod][$this->index];
+//        $route = &$this->routes[$this->currentMethod][$this->index];
+//        $this->namedRoutes[$this->createNameForRoute($name)] = [
+//            'uri' => $route->getUri(),
+//            'pattern' => $route,
+//            'placeholder' => $route['placeholder'],
+//            'parameters' => $route['parameters']
+//        ];
         $this->namedRoutes[$this->createNameForRoute($name)] = [
-            'uri' => $route['uri'],
-            'pattern' => $route['pattern'],
-            'binding' => $route['binding'],
-            'pramsName' => $route['pramsName']
+            'index' => $this->index,
+            'method' => $this->currentMethod
         ];
-
         return $this;
     }
 
@@ -199,64 +205,21 @@ class RoutingProcessor
 
     public function middleware(array|string $middlewares): static
     {
-        $this->routes[$this->currentMethod][$this->index]['middleware'] = array_merge(
-            $this->routes[$this->currentMethod][$this->index]['middleware']??[],
+        $this->routes[$this->currentMethod][$this->index]->setMiddleware(
                 is_string($middlewares) ? explode('|', $middlewares) : $middlewares
         );
         return $this;
     }
 
-    public function whereDigit(string|array $pram): static
+    public function match(string $uri, string $method): ?Route
     {
-        return $this;
-    }
-
-    public function whereSting(string|array $pram): static
-    {
-        return $this;
-    }
-
-    public function whereDigitExcept(string|array $pram, ?array $except = null): static
-    {
-        return $this;
-    }
-
-    public function whereStingExcept(string|array $pram, ?array $except = null): static
-    {
-        return $this;
-    }
-
-    public function whereDigitAnd(string|array $pram, ?array $and = null): static
-    {
-        return $this;
-    }
-
-    public function whereStingAnd(string|array $pram, ?array $and = null): static
-    {
-        return $this;
-    }
-
-    public function match(string $uri, string $method): bool|array
-    {
-        foreach ($this->routes[$method] as $value) {
-            $fullyMatched = true;
-            if (preg_match($value['pattern'], $uri, $matches)) {
+        foreach ($this->routes[$method] as $route) {
+            if (preg_match($route->getPattern(), $uri, $matches)) {
                 array_shift($matches);
-                foreach ($matches as $pram){
-                    if (strpos($pram,'/')){
-                        $fullyMatched = false;
-                        break;
-                    }
-                }
-                if ($fullyMatched){
-                    return array_merge($value, [
-                        'prams' => array_combine(array_keys($value['pramsName']),$matches),
-                    ]);
-                }
-
+                return $route->setParametersValues($matches);
             }
         }
-        return false;
+        return null;
     }
 
     public function routeExists(string $uri, string $method): bool
@@ -264,15 +227,23 @@ class RoutingProcessor
         return false;
     }
 
-    public function add(string $type, string $method, array $value): static
+    public function add(string $type, string $method, Route $route): static
     {
-        $this->routes[$method][] = $value;
+        $this->routes[$method][] = $route;
         return $this;
     }
 
-    public function refreshIndex(): static
+    public function increaseIndex(): static
     {
-        $this->index = count($this->routes[$this->currentMethod]) - 1;
+        $this->index = count($this->routes[$this->currentMethod])-1;
         return $this;
+    }
+
+    public function routes(string $method,?int $index = null) :array|Route
+    {
+        if ($index){
+            return $this->routes[$method][$index];
+        }
+        return $this->routes[$method];
     }
 }

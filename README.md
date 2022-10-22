@@ -2,21 +2,28 @@
 ### Not finished yet
 
 ## Features
-* Routing with prams (only Controller and class name) and naming routes
+* Routing with prams and naming 
 * Dependency Injection (InterFace Binding - Auto wiring)
 * Controllers constructor and methods dependency injection
 
 ## Routing
 ### creating routes with names
 ```php
-Router::group(['prefix'=> 'users' ,'as'=> 'users' ],function (){
-    Router::get('/',[UserController::class,'index'])->name('index');
-    Router::post('/',[UserController::class,'store'])->name('store');
-    Router::get('/create',[UserController::class,'create'])->name('create')->middleware('working');
-    Router::get('/{id}',[UserController::class,'show'])->name('show');
-    Router::put('/{id}',[UserController::class,'update'])->name('update');
-    Router::delete('/{id}',[UserController::class,'destroy'])->name('destroy');
-    Router::get('/{id}/edit',[UserController::class,'edit'])->name('edit');
+$router->get('/' ,function (\Src\Http\Request $request){
+    return $request->uri() .  ' home page';
+});
+
+// name space works when callback is string ;
+$router->group(['prefix'=> 'users' ,'as'=> 'users' ,'namespace'=> 'App\Controllers'],function (Router $router){
+    $router->get('/',[UserController::class,'index'])->name('index');
+    $router->post('/',[UserController::class,'store'])->name('store');
+    $router->get('/create',[UserController::class,'create'])->name('create')
+        ->middleware('working');
+    // custom pram name is only string in slug format 
+    $router->get('/{name:[A-Za-z_-]}','UserController@show')->name('show');
+    $router->put('/{id}',[UserController::class,'update'])->name('update');
+    $router->delete('/{id}',[UserController::class,'destroy'])->name('destroy');
+    $router->get('/{id}/edit',[UserController::class,'edit'])->name('edit');
 });
 ```
 ### get route by name 
@@ -71,9 +78,9 @@ class UserService
 ```php
 class UserController
 {
-    public function show($id,Request $request, Server $server)
+    public function show($name,Request $request)
     {
-        return 'show function with pram: ' . $id ." with uri {$request->uri()} " ;
+        return 'show function with pram: ' . $name ." with uri {$request->uri()} " ;
     }
 }
 ```

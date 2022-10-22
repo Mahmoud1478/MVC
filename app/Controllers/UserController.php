@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Services\UserService;
+use Exception;
 use Src\Http\Request;
 use Src\Http\Server;
 use Src\Routing\Router;
@@ -31,9 +32,9 @@ class UserController
         return 'store function with request: ';
     }
 
-    public function show($id,Request $request, Server $server)
+    public function show($name,Request $request)
     {
-        return 'show function with pram: ' . $id ." with uri {$request->uri()} " ;
+        return 'show function with pram: ' . $name ." with uri {$request->uri()} " ;
     }
 
     public function destroy($id)

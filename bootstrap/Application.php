@@ -1,5 +1,5 @@
 <?php
-define('ROOT',realpath(__DIR__.'../'));
+define('ROOT',realpath(__DIR__.'/..'));
 const DS = DIRECTORY_SEPARATOR;
 require_once '../vendor/autoload.php';
 
@@ -19,8 +19,9 @@ use Src\Session\Session;
 
 $app = new App();
 
-Router::group([],function (){
-    require __DIR__.'/../routes/web.php';
+
+$app->router->group([],function (Router $router){
+    require ROOT.'/routes/web.php';
 });
 
 return $app;
